@@ -1,65 +1,72 @@
-document.addEventListener("DOMContentLoaded", function () {
-    const form = document.getElementById("inventory-form");
-    const itemList = document.querySelector("#inventory-table tbody");
+const apiUrl = 'https://crudcrud.com/api/690e2dd1477543338ae748c89b7b9cd1/inventapp'; // Replace with your API endpoint
 
-    // Create an empty inventory array to store items.
-    const inventory = [];
 
-    form.addEventListener("submit", function (e) {
-        e.preventDefault();
 
-        const itemName = document.getElementById("item-name").value;
-        const itemQuantity = parseInt(document.getElementById("item-quantity").value);
 
-        if (itemName && !isNaN(itemQuantity) && itemQuantity > 0) {
-            addItemToInventory(itemName, itemQuantity);
-            form.reset();
-        }
-    });
+function fetchInventory() {
+    axios.get(apiUrl)
+        .then(response => {
+            const inventoryList = document.getElementById('inventory-list');
+            inventoryList.innerHTML = '';
 
-    function addItemToInventory(name, quantity) {
-        // Check if the item already exists in the inventory.
-        const existingItem = inventory.find(item => item.name === name);
-
-        if (existingItem) {
-            // If it exists, update the quantity by adding the new quantity.
-            existingItem.quantity += quantity;
-        } else {
-            // If it doesn't exist, add it to the inventory.
-            inventory.push({ name, quantity });
-        }
-
-        // Update the display with the current inventory items and quantities.
-        updateInventoryDisplay();
-    }
-
-    function updateInventoryDisplay() {
-        // Clear the current list of items.
-        itemList.innerHTML = "";
-
-        // Loop through the inventory and display each item and its quantity.
-        inventory.forEach(item => {
-            const row = document.createElement("tr");
-            row.innerHTML = `
-                <td>${item.name}</td>
-                <td>${item.quantity}</td>
-                <td>
-                    <button onclick="buyItem('${item.name}')">Buy</button>
-                </td>
-            `;
-            itemList.appendChild(row);
+            response.data.forEach(item => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `<span id="item-name-${item._id}">${item.itemName}: <span id="item-quantity-${item._id}">${item.itemQuantity}</span></span>
+                                      <button class="buy-button" onclick="buyItem('${item._id}',  ${item.itemQuantity})">Buy</button>
+                                      <button class="delete-button" onclick="deleteItem('${item._id}')">Delete</button>`;
+                inventoryList.appendChild(listItem);
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching inventory:', error);
         });
+}
+
+function addItem() {
+    const itemName = document.getElementById('itemName').value;
+    const itemQuantity = parseInt(document.getElementById('itemQuantity').value);
+
+    if (itemName && !isNaN(itemQuantity)) {
+        const newItem = {
+            itemName,
+            itemQuantity
+        };
+
+        axios.post(apiUrl, newItem)
+            .then(() => {
+                document.getElementById('itemName').value = '';
+                document.getElementById('itemQuantity').value = '';
+                fetchInventory();
+            })
+            .catch(error => {
+                console.error('Error adding item:', error);
+            });
     }
+}
 
-    // Function to buy an item and update its quantity.
-    window.buyItem = function (itemName) {
-        const itemToBuy = inventory.find(item => item.name === itemName);
+function buyItem(itemId, currentQuantity) {
+    const newQuantity = currentQuantity - 1;
 
-        if (itemToBuy && itemToBuy.quantity > 0) {
-            itemToBuy.quantity--;
-            updateInventoryDisplay();
-        } else {
-            alert("Item not available.");
-        }
-    };
-});
+    if (newQuantity >= 0) {
+        axios.put(`${apiUrl}/${itemId}`,  { itemQuantity: newQuantity })
+            .then(() => {
+                fetchInventory();
+            })
+            .catch(error => {
+                console.error('Error updating item quantity:', error);
+            });
+    }
+}
+
+function deleteItem(itemId) {
+    axios.delete(`${apiUrl}/${itemId}`)
+        .then(() => {
+            fetchInventory();
+        })
+        .catch(error => {
+            console.error('Error deleting item:', error);
+        });
+}
+
+// Fetch inventory when the page loads
+fetchInventory();

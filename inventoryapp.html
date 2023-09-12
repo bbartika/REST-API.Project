@@ -3,37 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventory Management System</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Inventory System</title>
+    <link rel="stylesheet" href="styles1.css">
 </head>
 <body>
-    <h1>Inventory Management System</h1>
     <div class="container">
-        <h2>Add Item</h2>
-        <form id="inventory-form">
-            <label for="item-name">Item Name:</label>
-            <input type="text" id="item-name" required>
-            <label for="item-quantity">Quantity:</label>
-            <input type="number" id="item-quantity" required>
-            <button type="submit">Add</button>
-        </form>
+        <h1>Inventory System</h1>
+        <div class="input-container">
+            <input type="text" id="itemName" placeholder="Item Name">
+            <input type="number" id="itemQuantity" placeholder="Item Quantity">
+            <button onclick="addItem()">Add Item</button>
+        </div>
+        <div id="inventory-list">
+            <!-- Item list will be displayed here -->
+        </div>
     </div>
-    <div class="container">
-        <h2>Inventory List</h2>
-        <table id="inventory-table">
-            <thead>
-                <tr>
-                    <th>Item Name</th>
-                    <th>Quantity</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Inventory items will be displayed here -->
-            </tbody>
-        </table>
-    </div>
-    <script src="script.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+    <script src="script1.js"></script>
 </body>
 </html>
-
